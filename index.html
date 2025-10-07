@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viết chính tả Unit 1 - Skills- RO9</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* New Playground Fun theme */
+            --primary-color: #3498db; /* Blue */
+            --primary-dark: #2980b9;
+            --accent-color: #f1c40f; /* Yellow */
+            --secondary-color: #2ecc71; /* Green */
+            --background-gradient: linear-gradient(135deg, #aed6f1 0%, #d5f5e3 100%); /* Light blue to light green */
+            --container-bg: rgba(255, 255, 255, 0.95);
+            --text-color: #2c3e50; /* Dark Blue-Gray */
+            --light-text: #7f8c8d; /* Gray */
+            --success-color: #27ae60; /* Green */
+            --error-color: #e74c3c; /* Red */
+            --border-color: #ecf0f1;
+            --light-bg-highlight: #e8f6fd;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Poppins', sans-serif;
+            background: var(--background-gradient);
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+            overflow: hidden; /* Important for bubble effect */
+            color: var(--text-color);
+        }
+        #effect-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        #game-container {
+            text-align: center;
+            background: var(--container-bg);
+            backdrop-filter: blur(2px);
+            padding: 25px 30px;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 680px;
+            position: relative;
+            border: 2px solid #fff;
+            z-index: 1;
+        }
+        h1 {
+            font-family: 'Fredoka', sans-serif;
+            font-size: clamp(28px, 6vw, 40px);
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        p {
+            font-size: clamp(16px, 4.2vw, 18px);
+            line-height: 1.6;
+            margin-top: 0;
+        }
+        #vietnamese-translation {
+            font-size: clamp(18px, 5vw, 22px);
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin: 20px 0 10px 0;
+            padding: 10px 15px;
+            background-color: var(--light-bg-highlight);
+            border-radius: 12px;
+            min-height: 30px;
+            user-select: none; /* Prevent text selection */
+        }
+        input[type="text"] {
+            padding: 14px 20px;
+            font-size: clamp(16px, 4.5vw, 18px);
+            width: 100%;
+            max-width: 500px;
+            margin: 20px 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            background-color: #FFF;
+            color: var(--text-color);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input[type="text"]::placeholder {
+            color: #bdc3c7;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+        }
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        button {
+            padding: 12px 25px;
+            font-size: clamp(15px, 4.2vw, 17px);
+            cursor: pointer;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+        }
+        .btn-play { background-color: var(--secondary-color); }
+        .btn-play:hover:not(:disabled) { background-color: #27ae60; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4); transform: translateY(-2px); }
+
+        .btn-check { background-color: var(--primary-color); }
+        .btn-check:hover:not(:disabled) { background-color: var(--primary-dark); box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4); transform: translateY(-2px); }
+        
+        .btn-hint { background-color: var(--accent-color); color: var(--text-color); }
+        .btn-hint:hover:not(:disabled) { background-color: #f39c12; box-shadow: 0 4px 15px rgba(241, 196, 15, 0.4); transform: translateY(-2px); }
+        
+        .btn-reset { background-color: var(--light-text); }
+        .btn-reset:hover:not(:disabled) { background-color: #95a5a6; box-shadow: 0 4px 15px rgba(127, 140, 141, 0.4); transform: translateY(-2px); }
+
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+        #hint {
+            color: var(--text-color); /* Changed from --light-text for better visibility */
+            font-style: italic;
+            font-weight: 600;
+            margin-top: 15px;
+            font-size: clamp(14px, 3.8vw, 16px);
+            user-select: none;
+            line-height: 1.5;
+            min-height: 22px;
+        }
+        .progress-display {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: var(--light-bg-highlight);
+            border-radius: 12px;
+            padding: 10px 15px;
+            margin-top: 20px;
+        }
+        .progress-display p {
+            font-size: clamp(18px, 4.5vw, 20px);
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin: 0;
+        }
+        #result {
+            font-size: clamp(16px, 4.2vw, 19px);
+            font-weight: 600;
+            margin-top: 15px;
+            min-height: 27px;
+        }
+        .particle {
+            position: absolute;
+            bottom: -50px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            opacity: 0;
+            animation: bubble-rise 4s ease-in-out forwards;
+        }
+        @keyframes bubble-rise {
+            0% {
+                transform: translateY(0) translateX(0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(var(--x-end)) scale(1.5);
+                opacity: 0;
+            }
+        }
+        .modal {
+            display: none; position: fixed; z-index: 200; left: 0; top: 0; width: 100%; height: 100%;
+            overflow: auto; background-color: rgba(0,0,0,0.7); align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background-color: #fff; color: var(--text-color); margin: auto; padding: 20px; border: 2px solid var(--border-color);
+            width: 90%; max-width: 600px; border-radius: 16px; max-height: 80vh; overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .modal-content h2 { color: var(--primary-dark); font-family: 'Fredoka', sans-serif; }
+        .modal-content ul { list-style: none; padding: 0; }
+        .modal-content li { 
+            background: var(--light-bg-highlight); 
+            border-radius: 8px; 
+            padding: 15px; 
+            margin-bottom: 12px; 
+            text-align: left; 
+            border-left: 5px solid var(--error-color);
+            font-size: 16px;
+        }
+        .modal-content li strong { color: var(--success-color); font-weight: 700; }
+        .modal-content li em { display: block; margin-top: 5px; color: var(--light-text); font-size: 14px; }
+        .close-button { color: #aaa; float: right; font-size: 28px; font-weight: bold; cursor: pointer; }
+        .error-message {
+            color: var(--error-color);
+            font-weight: 600;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            min-height: 20px;
+        }
+        .final-score h2 {
+            font-family: 'Fredoka', sans-serif;
+            color: var(--secondary-color);
+            font-size: 45px;
+            margin-bottom: 5px;
+        }
+        .final-score p {
+            font-size: 20px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div id="effect-container"></div>
+    <div id="game-container">
+        <h1>Viết chính tả Unit 1 - Skills- RO9</h1>
+        <p>Please enter your name to start. (Vui lòng nhập tên của bạn để bắt đầu.)</p>
+        <input type="text" id="playerNameInput" placeholder="Your Name">
+        <!-- New element to show error message instead of an alert -->
+        <p id="name-error" class="error-message"></p>
+        <button class="btn-check" onclick="submitName()">Start Game</button>
+    </div>
+
+    <div id="reviewModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeReviewModal()">&times;</span>
+            <h2>Xem lại lỗi sai (Review Mistakes)</h2>
+            <p>Dưới đây là các câu bạn đã viết sai hoặc bỏ qua. Hãy ghi nhớ để rút kinh nghiệm nhé!</p>
+            <ul id="mistakeList"></ul>
+        </div>
+    </div>
+
+    <script>
+        const sentences = [
+            { en: "Living in Vietnam today is very different from 100 years ago.", vi: "Cuộc sống ở Việt Nam ngày nay rất khác so với 100 năm trước." },
+            { en: "In the past, most people worked on farms.", vi: "Trong quá khứ, hầu hết mọi người làm việc ở nông trại." },
+            { en: "Now, fewer people work in agriculture.", vi: "Bây giờ, ít người làm việc trong ngành nông nghiệp hơn." },
+            { en: "Instead, many people have jobs in factories or in tourism.", vi: "Thay vào đó, nhiều người có việc làm trong các nhà máy hoặc ngành du lịch." },
+            { en: "Vietnam used to be a farming country, but it is changing quickly.", vi: "Việt Nam từng là một nước nông nghiệp, nhưng đang thay đổi nhanh chóng." },
+            { en: "Although farming is still important, other businesses are becoming more and more common.", vi: "Mặc dù nông nghiệp vẫn quan trọng, các ngành kinh doanh khác đang trở nên phổ biến hơn." },
+            { en: "Life in Vietnam today is very different from life in the past, and it keeps changing.", vi: "Cuộc sống ở Việt Nam ngày nay rất khác so với cuộc sống trong quá khứ, và nó không ngừng thay đổi." },
+            { en: "In the past, many generations lived together: parents, children, grandparents, aunts, uncles, and cousins.", vi: "Trong quá khứ, nhiều thế hệ sống cùng nhau: cha mẹ, con cái, ông bà, cô, chú, bác, và anh chị em họ." },
+            { en: "Today, most families are small. Only parents and children live together in one house.", vi: "Ngày nay, hầu hết các gia đình đều nhỏ. Chỉ có cha mẹ và con cái sống cùng nhau trong một ngôi nhà." },
+            { en: "Long ago, people usually walked or used rickshaws and cyclos.", vi: "Xưa kia, mọi người thường đi bộ hoặc sử dụng xe kéo và xe xích lô." },
+            { en: "Now, people travel by motorbike, car, bus, train, or even by plane.", vi: "Bây giờ, mọi người đi lại bằng xe máy, ô tô, xe buýt, tàu hỏa, hoặc thậm chí bằng máy bay." },
+            { en: "In the old days, people lived in small cottages or simple houses.", vi: "Ngày xưa, mọi người sống trong những ngôi nhà nhỏ hoặc nhà đơn giản." },
+            { en: "Today, many people live in tall buildings or tube houses in cities.", vi: "Ngày nay, nhiều người sống trong các tòa nhà cao tầng hoặc nhà ống ở thành phố." },
+            { en: "Others live in brick houses in the countryside.", vi: "Những người khác sống trong nhà gạch ở nông thôn." },
+            { en: "In the past, men worked outside and women stayed home to do the housework.", vi: "Trong quá khứ, đàn ông làm việc bên ngoài và phụ nữ ở nhà làm việc nhà." },
+            { en: "Now, both men and women have jobs and earn money to support their families.", vi: "Bây giờ, cả đàn ông và phụ nữ đều có việc làm và kiếm tiền để hỗ trợ gia đình." },
+            { en: "Long ago, only boys went to school.", vi: "Xưa kia, chỉ có con trai được đi học." },
+            { en: "Now, both boys and girls can study.", vi: "Bây giờ, cả con trai và con gái đều có thể đi học." },
+            { en: "There are many schools and universities because Vietnamese people value education.", vi: "Có nhiều trường học và đại học bởi vì người Việt Nam coi trọng giáo dục." },
+            { en: "An extended family often includes parents, children, grandparents, aunts, uncles and cousins.", vi: "Một gia đình nhiều thế hệ thường bao gồm cha mẹ, con cái, ông bà, cô, chú, bác và anh chị em họ." },
+            { en: "Hand-drawn carts were more popular than bicycle carts in the past.", vi: "Xe kéo tay phổ biến hơn xe đạp kéo trong quá khứ." },
+            { en: "In the past, Vietnamese people mostly travelled on foot.", vi: "Trong quá khứ, người Việt Nam chủ yếu đi lại bằng chân." },
+            { en: "They also got around by richshaws or cyclos", vi: "Họ cũng đi lại bằng xe kéo hoặc xe xích lô." },
+            { en: "Many Vietnamese people in the countryside live in small brick houses.", vi: "Nhiều người Việt Nam ở nông thôn sống trong những ngôi nhà gạch nhỏ." },
+            { en: "Nowadays, both the husband and the wife work and make a good living to support the family.", vi: "Ngày nay, cả chồng và vợ đều làm việc và kiếm sống tốt để nuôi gia đình." },
+            { en: "Nowadays, boys and girls have equal opportunity for education.", vi: "Ngày nay, con trai và con gái có cơ hội học tập bình đẳng." },
+            { en: "My parents’ salary is good enough to support the family.", vi: "Lương của bố mẹ tôi đủ để nuôi gia đình." },
+            { en: "In my nuclear family, there is my mum, dad, sister and me.", vi: "Trong gia đình hạt nhân của tôi, có mẹ, bố, chị gái và tôi." },
+            { en: "My extended family includes my parents, grandparents, aunt, uncle, cousins and me.", vi: "Gia đình nhiều thế hệ của tôi bao gồm cha mẹ, ông bà, cô, chú, anh chị em họ và tôi." },
+            { en: "Women in the old days stayed home to raise children and teach them how to behave well.", vi: "Phụ nữ ngày xưa ở nhà nuôi dạy con cái và dạy chúng cách cư xử tốt." },
+            { en: "A long time ago, only men used to make a living by working outside the home.", vi: "Rất lâu trước đây, chỉ có đàn ông thường kiếm sống bằng cách làm việc bên ngoài." },
+            { en: "Today, all family members do the housework to keep the house clean.", vi: "Ngày nay, tất cả thành viên trong gia đình đều làm việc nhà để giữ nhà sạch sẽ." },
+            { en: "Nowadays men take a more active role in their families.", vi: "Ngày nay, đàn ông đóng vai trò tích cực hơn trong gia đình." },
+            { en: "Fathers do more housework and spend more time with their children.", vi: "Những người cha làm nhiều việc nhà hơn và dành nhiều thời gian hơn cho con cái họ." },
+            { en: "Today, parents respect their children’s opinions.", vi: "Ngày nay, cha mẹ tôn trọng ý kiến của con cái." },
+        ];
+        let playerName = '';
+        let incorrectAnswers = [];
+        let currentSentenceIndex = 0;
+        let completedCount = 0;
+        let isPlaying = false;
+        let playCount = 0;
+        let playTimeout;
+        let wrongAttempts = 0;
+        const TOTAL_SENTENCES = sentences.length;
+
+        // Function to show random floating bubbles/particles
+        function showBubbleEffect() {
+            const container = document.getElementById('effect-container');
+            for (let i = 0; i < 25; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'particle';
+                container.appendChild(bubble);
+
+                const size = Math.random() * 30 + 10;
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.left = `${Math.random() * 100}vw`;
+                bubble.style.setProperty('--x-end', `${(Math.random() - 0.5) * 200}px`);
+                bubble.style.background = `hsla(${Math.random() * 360}, 70%, 80%, 0.5)`;
+                
+                const animation = bubble.animate([
+                    { bottom: '-50px', opacity: 1 },
+                    { bottom: '100vh', opacity: 0 }
+                ], {
+                    duration: Math.random() * 3000 + 4000,
+                    easing: 'ease-in-out',
+                    delay: Math.random() * 500
+                });
+                
+                animation.onfinish = () => bubble.remove();
+            }
+        }
+
+        // Plays the current sentence
+        function playSentence() {
+            if (isPlaying) return;
+            if (sentences[currentSentenceIndex]) {
+                isPlaying = true;
+                const utterance = new SpeechSynthesisUtterance(sentences[currentSentenceIndex].en);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                
+                utterance.onend = () => { 
+                    isPlaying = false; 
+                    playCount++;
+                    if (playCount < 2) {
+                        // Automatically play again after a short delay if it's the first time
+                        playTimeout = setTimeout(playSentence, 1000); 
+                    }
+                };
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Stops all current speech
+        function stopSpeech() {
+            speechSynthesis.cancel();
+            isPlaying = false;
+            if (playTimeout) clearTimeout(playTimeout);
+        }
+
+        // Main function to check the user's answer
+        function checkAnswer() {
+            const checkBtn = document.getElementById('checkBtn');
+            if (checkBtn.disabled) return;
+            const userInput = document.getElementById('userInput').value.trim();
+            const result = document.getElementById('result');
+            const currentSentence = sentences[currentSentenceIndex];
+            
+            // Function to normalize apostrophes (', ` vs ’) for comparison
+            const normalizeApostrophes = (str) => str.replace(/[’‘`]/g, "'");
+
+            // Compare normalized strings, ignoring case
+            if (normalizeApostrophes(userInput).toLowerCase() === normalizeApostrophes(currentSentence.en).toLowerCase()) {
+                stopSpeech();
+                checkBtn.disabled = true;
+                document.getElementById('hintBtn').disabled = true;
+                document.getElementById('playSoundBtn').disabled = true;
+                result.textContent = "Chính xác! (Correct!) 🎉";
+                result.style.color = 'var(--success-color)';
+                showBubbleEffect();
+                
+                // Only count the score if the user got it right before running out of attempts
+                if (wrongAttempts < 3) {
+                    completedCount++;
+                    document.getElementById('score-counter').textContent = `Điểm: ${completedCount}`;
+                }
+                wrongAttempts = 0;
+
+                setTimeout(() => {
+                    currentSentenceIndex++;
+                    if (currentSentenceIndex >= TOTAL_SENTENCES) {
+                        showEndGameScreen();
+                    } else {
+                        updateGameScreen();
+                        // Auto play the next sentence 2 times
+                        playCount = 0;
+                        playSentence(); 
+                    }
+                }, 2000);
+            } else {
+                wrongAttempts++;
+                result.textContent = `Không đúng, thử lại nhé! (Còn ${3 - wrongAttempts} lần thử)`;
+                result.style.color = 'var(--error-color)';
+                
+                if (wrongAttempts >= 3) {
+                    stopSpeech();
+                    
+                    // Add to mistakes list if not already added
+                    if (!incorrectAnswers.some(item => item.en === currentSentence.en)) {
+                        incorrectAnswers.push({...currentSentence, attempted: userInput});
+                    }
+                    
+                    wrongAttempts = 0;
+                    result.textContent = "Đã hết lượt. Chuyển sang câu tiếp theo... (Moving to next sentence...)";
+                    result.style.color = 'var(--text-color)';
+
+                    setTimeout(() => {
+                        currentSentenceIndex++;
+                        if (currentSentenceIndex >= TOTAL_SENTENCES) {
+                            showEndGameScreen();
+                        } else {
+                            updateGameScreen();
+                            // Auto play the next sentence 2 times
+                            playCount = 0;
+                            playSentence(); 
+                        }
+                    }, 2000);
+                }
+            }
+        }
+        
+        // Displays the end game results
+        function showEndGameScreen() {
+            let reviewButtonHTML = '';
+            if (incorrectAnswers.length > 0) {
+                reviewButtonHTML = `<button class="btn-hint" onclick="showReviewModal()">Xem lại lỗi sai (${incorrectAnswers.length})</button>`;
+            }
+            document.getElementById('game-container').innerHTML = `
+                <div class="final-score">
+                    <h2>Trò chơi kết thúc!</h2>
+                    <p>Chúc mừng, ${playerName}! Bạn đã đạt được:</p>
+                    <p class="text-3xl font-bold">${completedCount} / ${TOTAL_SENTENCES} điểm</p>
+                </div>
+                <div class="button-group">
+                    <button class="btn-check" onclick="resetGame()">Chơi lại (Play Again)</button>
+                    ${reviewButtonHTML}
+                </div>
+            `;
+        }
+
+
+        // Updates the UI for the new sentence
+        function updateGameScreen() {
+            const currentData = sentences[currentSentenceIndex];
+            
+            // Reset input and messages
+            const userInputEl = document.getElementById('userInput');
+            if (userInputEl) userInputEl.value = '';
+            
+            const translationEl = document.getElementById('vietnamese-translation');
+            if (translationEl) translationEl.textContent = currentData.vi;
+
+            const hintEl = document.getElementById('hint');
+            if (hintEl) hintEl.textContent = '';
+            
+            const resultEl = document.getElementById('result');
+            if (resultEl) {
+                resultEl.textContent = 'Nghe và gõ lại. (Listen and type.)';
+                resultEl.style.color = 'var(--text-color)';
+            }
+            
+            // Update counters and enable buttons
+            document.getElementById('question-counter').textContent = `Câu ${currentSentenceIndex + 1} / ${TOTAL_SENTENCES}`;
+            document.getElementById('score-counter').textContent = `Điểm: ${completedCount}`;
+            document.getElementById('checkBtn').disabled = false;
+            document.getElementById('hintBtn').disabled = false;
+            document.getElementById('playSoundBtn').disabled = false;
+        }
+
+        function showHint() {
+            document.getElementById('hint').innerHTML = `Gợi ý: ${sentences[currentSentenceIndex].en}`;
+        }
+        
+        function clearHint() {
+            const hintEl = document.getElementById('hint');
+            if(hintEl) {
+                hintEl.innerHTML = '';
+            }
+        }
+        
+        function showNameError() {
+            const nameErrorEl = document.getElementById('name-error');
+            if (nameErrorEl) {
+                nameErrorEl.textContent = "Vui lòng nhập tên của bạn! (Please enter your name!)";
+            }
+        }
+        
+        function clearNameError() {
+            const nameErrorEl = document.getElementById('name-error');
+            if (nameErrorEl) {
+                nameErrorEl.textContent = "";
+            }
+        }
+        
+        // Handles name submission and starts the game
+        function submitName() {
+            const nameInput = document.getElementById('playerNameInput');
+            playerName = nameInput.value.trim();
+            if (playerName) {
+                clearNameError();
+                startGame();
+            } else {
+                showNameError();
+            }
+        }
+
+        // Initializes the game screen
+        function startGame() {
+            stopSpeech(); // Stop any previous speech
+            wrongAttempts = 0;
+            currentSentenceIndex = 0;
+            completedCount = 0;
+            incorrectAnswers = [];
+            const currentData = sentences[currentSentenceIndex];
+            
+            // Game UI structure
+            document.getElementById('game-container').innerHTML = `
+                <h1>Viết chính tả Unit 1 - Skills- RO9</h1>
+                <p>Listen and type what you hear.<span class="instruction-vi"> (Nghe và gõ lại câu bạn nghe được.)</span></p>
+                <p id="vietnamese-translation">${currentData.vi}</p>
+                <input type="text" id="userInput" placeholder="Gõ câu trả lời tại đây... (Type your answer here...)">
+                <div class="button-group">
+                    <button id="playSoundBtn" class="btn-play" onclick="playSentence()">&#9658; Nghe lại (Replay)</button>
+                    <button id="checkBtn" class="btn-check" onclick="checkAnswer()">Kiểm tra (Check)</button>
+                    <button id="hintBtn" class="btn-hint">Gợi ý (Hint)</button>
+                    <button id="resetBtn" class="btn-reset" onclick="resetGame()">Chơi lại (Reset)</button>
+                </div>
+                <div class="progress-display">
+                    <p id="question-counter">Câu ${currentSentenceIndex + 1} / ${TOTAL_SENTENCES}</p>
+                    <p id="score-counter">Điểm: ${completedCount}</p>
+                </div>
+                <p id="hint"></p>
+                <p id="result">Nghe và gõ lại. (Listen and type.)</p>
+            `;
+            
+            // Add event listeners for interaction
+            const userInputEl = document.getElementById('userInput');
+            userInputEl.addEventListener('keypress', handleKeyPress);
+            userInputEl.addEventListener('focus', clearHint);
+
+            const hintBtn = document.getElementById('hintBtn');
+            if (hintBtn) {
+                hintBtn.addEventListener('mousedown', showHint);
+                hintBtn.addEventListener('mouseup', clearHint);
+                hintBtn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    showHint();
+                });
+                hintBtn.addEventListener('touchend', clearHint);
+            }
+
+            // Start with 2 automatic plays
+            playCount = 0;
+            playSentence();
+        }
+
+        // Resets the game to the initial state
+        function resetGame() {
+            stopSpeech();
+            document.getElementById('game-container').innerHTML = `
+                <h1>Viết chính tả Unit 1 - Skills- RO9</h1>
+                <p>Please enter your name to start. (Vui lòng nhập tên của bạn để bắt đầu.)</p>
+                <input type="text" id="playerNameInput" placeholder="Your Name" value="${playerName}">
+                <p id="name-error" class="error-message"></p>
+                <button class="btn-check" onclick="submitName()">Start Game</button>
+            `;
+        }
+        
+        // Shows the modal with detailed mistake review
+        function showReviewModal() {
+            const modal = document.getElementById('reviewModal');
+            const list = document.getElementById('mistakeList');
+            list.innerHTML = '';
+            
+            incorrectAnswers.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <strong>Đúng (Correct):</strong> ${item.en}<br>
+                    <em>Nghĩa: ${item.vi}</em>
+                `;
+                list.appendChild(listItem);
+            });
+            modal.style.display = 'flex';
+        }
+
+        function closeReviewModal() {
+            document.getElementById('reviewModal').style.display = 'none';
+        }
+
+        // Handles the Enter key press for quick checking
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); 
+                checkAnswer();
+            }
+        }
+        
+        // Ensure modal closes on outside click (or escape key)
+        window.onclick = function(event) {
+            const modal = document.getElementById('reviewModal');
+            if (event.target == modal) {
+                closeReviewModal();
+            }
+        }
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") {
+                closeReviewModal();
+            }
+        });
+
+    </script>
+</body>
+</html>
